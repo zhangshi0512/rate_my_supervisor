@@ -20,7 +20,7 @@ This unit, be sure to complete all tasks listed below. To complete a task, place
 
 ### 1. What went well during this unit?
 
-The kick-off meeting went very well, Alex had the google doc and github repo set up, and we were able to get started on the project. We were able to break down the project into smaller tasks and tackle them one by one.
+The kick-off meeting went very well, Alex had the github repo set up, Tim and Shi worked on the user stories as well as the possible tech stacks we could use for the project. We were able to break down the project into smaller tasks and tackle them one by one.
 
 ### 2. What were some challenges your group faced in this unit?
 
