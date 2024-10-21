@@ -41,9 +41,15 @@ The moderator will be able approve each post or suggest modifications its author
 
 [gif goes here]
 
-### User post review system
+### internship/apprenticeship post review system
 
-The user will be able to review and modify his post after the moderator has suggested modifications.
+The internship/apprenticeship will be able to review and modify their post after the moderator has suggested modifications.
+
+[gif goes here]
+
+### Post flagging
+
+internship/apprenticeship will be able to flag posts for review.
 
 [gif goes here]
 
