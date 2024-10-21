@@ -1,48 +1,51 @@
-# [your app name here]
+# Rate My Supervisor
 
 CodePath WEB103 Final Project
 
-Designed and developed by: [your names here]
-
+Designed and developed by: Alexandre Steinhauslin, Shi Zhang, Timothy Chung
 🔗 Link to deployed app:
 
 ## About
 
 ### Description and Purpose
 
-[text goes here]
+Rate my Supervisor is a web application like Rate my Professor that allows Intern and Associate therapists to rate their supervisor.
 
 ### Inspiration
 
-[text goes here]
+The current state of the internship/apprenticeship environment in the state of California.
 
 ## Tech Stack
 
-Frontend:
+Frontend: React, HTML, CSS, MaterialUI
 
-Backend:
+Backend: Node, Express, Railway
 
 ## Features
 
-### [Name of Feature 1]
+### Rating System
 
-[short description goes here]
-
-[gif goes here]
-
-### [Name of Feature 2]
-
-[short description goes here]
+The rating system will allow associates to review, through star rating and writing, Supervisors and Practices/Centers
 
 [gif goes here]
 
-### [Name of Feature 3]
+### Search for Organizations and Supervisors or Create new ones if they don't exist
 
-[short description goes here]
+The searching feature will allow associates to look for their Practice/Center and also the individual Supervisors working at that Practice/Center.
 
 [gif goes here]
 
-### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
+### Moderator post approval system
+
+The moderator will be able approve each post or suggest modifications its author.
+
+[gif goes here]
+
+### User post review system
+
+The user will be able to review and modify his post after the moderator has suggested modifications.
+
+[gif goes here]
 
 ## Installation Instructions
 
