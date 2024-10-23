@@ -3,6 +3,7 @@
 CodePath WEB103 Final Project
 
 Designed and developed by: Alexandre Steinhauslin, Shi Zhang, Timothy Chung
+
 🔗 Link to deployed app:
 
 ## About
@@ -29,9 +30,15 @@ The rating system will allow associates to review, through star rating and writi
 
 [gif goes here]
 
-### Search for Organizations and Supervisors or Create new ones if they don't exist
+### Search for Organizations and Supervisors or create new ones if they don't exist
 
 The searching feature will allow associates to look for their Practice/Center and also the individual Supervisors working at that Practice/Center.
+
+[gif goes here]
+
+### View list of Organizations and Supervisors
+
+The view list page will allow interns/associates to quickly see all the Practices/Centers or Supervisors working at a particular Practice/Center.
 
 [gif goes here]
 
@@ -41,7 +48,7 @@ The moderator will be able approve each post or suggest modifications its author
 
 [gif goes here]
 
-### internship/apprenticeship post review system
+### Internship/apprenticeship post review system
 
 The internship/apprenticeship will be able to review and modify their post after the moderator has suggested modifications.
 
@@ -49,7 +56,7 @@ The internship/apprenticeship will be able to review and modify their post after
 
 ### Post flagging
 
-internship/apprenticeship will be able to flag posts for review.
+Internship/apprenticeship will be able to flag posts for review.
 
 [gif goes here]
 
