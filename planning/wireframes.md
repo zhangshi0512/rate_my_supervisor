@@ -4,18 +4,25 @@ Reference the Creating an Entity Relationship Diagram final project guide in the
 
 ## List of Pages
 
-[👉🏾👉🏾👉🏾 List the pages you expect to have in your app, with a ⭐ next to pages you have wireframed]
+Landing page with search bar
+Search results page
+View a supervisor page
+Add a supervisor page
+Edit a supervisor page
+Add a review page
 
-## Wireframe 1: [page title]
+## Wireframe 1: Landing Page
 
-[👉🏾👉🏾👉🏾 include wireframe 1]
+![landing page](../landing_page.png)
 
-## Wireframe 2: [page title]
+## Wireframe 2: Supervisor Results Page
 
-[👉🏾👉🏾👉🏾 include wireframe 2]
+![results page](../results_page.png)
 
-## Wireframe 3: [page title]
+## Wireframe 3: Supervisor Profile
 
-[👉🏾👉🏾👉🏾 include wireframe 3]
+![supervisor profile](../supervisor_profile.png)
 
-[👉🏾👉🏾👉🏾 include more wireframes as desired]
+## Wireframe 4: Add Supervisor Page
+
+![add supervisor page](../add_supervisor.png)
