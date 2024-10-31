@@ -4,12 +4,12 @@ Reference the Creating an Entity Relationship Diagram final project guide in the
 
 ## List of Pages
 
-Landing page with search bar
-Search results page
-View a supervisor page
-Add a supervisor page
-Edit a supervisor page
-Add a review page
+- Landing page with search bar
+- Search results page
+- View a supervisor profile page
+- Add a supervisor page
+- Edit a supervisor page
+- Add a review page
 
 ## Wireframe 1: Landing Page
 
