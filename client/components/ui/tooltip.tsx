@@ -1,0 +1,1 @@
+<command>cp src/components/ui/tooltip.tsx client/components/ui/</command>

@@ -1,0 +1,1 @@
+<command>cp src/components/ui/alert-dialog.tsx client/components/ui/</command>

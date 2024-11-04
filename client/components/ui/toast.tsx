@@ -1,0 +1,1 @@
+<command>cp src/components/ui/toast.tsx client/components/ui/</command>

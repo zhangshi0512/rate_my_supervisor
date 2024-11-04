@@ -1,0 +1,1 @@
+<command>cp src/components/ui/hover-card.tsx client/components/ui/</command>

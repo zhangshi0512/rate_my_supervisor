@@ -1,0 +1,1 @@
+<command>cp src/components/ui/input-otp.tsx client/components/ui/</command>

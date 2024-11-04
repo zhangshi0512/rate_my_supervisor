@@ -1,0 +1,1 @@
+<command>cp src/components/ui/progress.tsx client/components/ui/</command>

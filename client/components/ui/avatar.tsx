@@ -1,0 +1,1 @@
+<command>cp src/components/ui/avatar.tsx client/components/ui/</command>

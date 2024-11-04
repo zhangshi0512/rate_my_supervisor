@@ -1,0 +1,1 @@
+<command>cp src/components/ui/accordion.tsx client/components/ui/</command>

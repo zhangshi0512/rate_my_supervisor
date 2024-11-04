@@ -1,0 +1,1 @@
+<command>cp src/components/ui/badge.tsx client/components/ui/</command>

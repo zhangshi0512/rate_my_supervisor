@@ -1,0 +1,1 @@
+<command>cp src/components/ui/navigation-menu.tsx client/components/ui/</command>

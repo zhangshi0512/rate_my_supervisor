@@ -1,0 +1,1 @@
+<command>cp src/components/ui/toaster.tsx client/components/ui/</command>

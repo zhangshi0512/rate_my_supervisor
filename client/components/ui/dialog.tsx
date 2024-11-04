@@ -1,0 +1,1 @@
+<command>cp src/components/ui/dialog.tsx client/components/ui/</command>

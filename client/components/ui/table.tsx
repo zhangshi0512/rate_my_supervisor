@@ -1,0 +1,1 @@
+<command>cp src/components/ui/table.tsx client/components/ui/</command>

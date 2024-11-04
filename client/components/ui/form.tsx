@@ -1,0 +1,1 @@
+<command>cp src/components/ui/form.tsx client/components/ui/</command>
