@@ -13,16 +13,16 @@ Reference the Creating an Entity Relationship Diagram final project guide in the
 
 ## Wireframe 1: Landing Page
 
-![landing page](assets/landing_page.png)
+![landing page](../assets/landing_page.png)
 
 ## Wireframe 2: Supervisor Results Page
 
-![results page](assets/results_page.png)
+![results page](../assets/results_page.png)
 
 ## Wireframe 3: Supervisor Profile
 
-![supervisor profile](assets/supervisor_profile.png)
+![supervisor profile](../assets/supervisor_profile.png)
 
 ## Wireframe 4: Add Supervisor Page
 
-![add supervisor page](assets/add_supervisor.png)
+![add supervisor page](../assets/add_supervisor.png)
