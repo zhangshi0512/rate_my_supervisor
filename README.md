@@ -24,39 +24,39 @@ Backend: Node, Express, Railway
 
 ## Features
 
+### ✅ View List of Organizations and Supervisors
+
+Users can browse a comprehensive list of organizations and their associated supervisors to explore available options and read reviews.
+
+![view list of orgs and supervisors](assets/feature_view_list_of_orgs_supervisors.gif)
+
 ### Rating System
 
-The rating system will allow associates to review, through star rating and writing, Supervisors and Practices/Centers
+Interns can rate supervisors using predefined criteria, providing structured feedback that contributes to an overall rating.
 
 [gif goes here]
 
-### Search for Organizations and Supervisors or create new ones if they don't exist
+### Search for Organizations and Supervisors
 
-The searching feature will allow associates to look for their Practice/Center and also the individual Supervisors working at that Practice/Center.
-
-[gif goes here]
-
-### View list of Organizations and Supervisors
-
-The view list page will allow interns/associates to quickly see all the Practices/Centers or Supervisors working at a particular Practice/Center.
+A search functionality which allows users to quickly find specific organizations or supervisors by name.
 
 [gif goes here]
 
-### Moderator post approval system
+### Create new Organizations and Supervisors
 
-The moderator will be able approve each post or suggest modifications its author.
-
-[gif goes here]
-
-### Internship/apprenticeship post review system
-
-The internship/apprenticeship will be able to review and modify their post after the moderator has suggested modifications.
+Users can add new organizations and supervisors to the platform to expand the database.
 
 [gif goes here]
 
-### Post flagging
+### Update Organizations and Supervisors
 
-Internship/apprenticeship will be able to flag posts for review.
+Users can edit existing profiles of organizations and supervisors to ensure information remains accurate and up-to-date.
+
+[gif goes here]
+
+### Interns/Associates Review Tags
+
+When submitting reviews, interns can select from predefined tags to highlight specific aspects of their experience, making it easier for others to identify key points.
 
 [gif goes here]
 
