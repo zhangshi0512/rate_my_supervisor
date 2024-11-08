@@ -1,3 +1,5 @@
+/* server/db/init.sql */
+
 -- Insert initial data
 INSERT INTO organizations (name, type, description, website_url)
 VALUES 

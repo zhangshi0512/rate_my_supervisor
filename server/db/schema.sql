@@ -1,3 +1,5 @@
+/* server/db/schema.sql */
+
 -- Create tables
 CREATE TABLE organizations (
   id SERIAL PRIMARY KEY,
