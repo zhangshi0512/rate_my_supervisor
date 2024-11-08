@@ -1,43 +1,33 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import express from "express";
+import cors from "cors";
+import { supervisorRoutes } from "./routes/supervisors.js";
+import { organizationRoutes } from "./routes/organizations.js";
+import { reviewRoutes } from "./routes/reviews.js";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
-// Enable CORS
-app.use(cors());
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:5173",
+  })
+);
 
-// Parse JSON bodies
 app.use(express.json());
 
-// Serve static files from the client build directory
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// Set proper CSP headers
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
-  );
-  next();
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
-// API routes
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// Routes
+app.use("/api/supervisors", supervisorRoutes);
+app.use("/api/organizations", organizationRoutes);
+app.use("/api/reviews", reviewRoutes);
 
-// Handle client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
-
-// Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
