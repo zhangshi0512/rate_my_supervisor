@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, MapPin, Globe, Star } from "lucide-react";
+import { Building2, MapPin, Globe, Star, ThumbsUp, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -8,8 +8,10 @@ import { Link, useParams } from "react-router-dom";
 import {
   getOrganization,
   getOrganizationSupervisors,
+  getOrganizationReviews,
   type Organization,
   type Supervisor,
+  type OrganizationReviewWithAuthor,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -17,6 +19,7 @@ export default function OrganizationDetail() {
   const { id } = useParams();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
+  const [reviews, setReviews] = useState<OrganizationReviewWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,13 +27,15 @@ export default function OrganizationDetail() {
       if (!id) return;
 
       try {
-        const [orgData, supervisorsData] = await Promise.all([
+        const [orgData, supervisorsData, reviewsData] = await Promise.all([
           getOrganization(id),
           getOrganizationSupervisors(id),
+          getOrganizationReviews(id),
         ]);
 
         setOrganization(orgData);
         setSupervisors(supervisorsData);
+        setReviews(reviewsData);
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to load organization details");
@@ -112,7 +117,6 @@ export default function OrganizationDetail() {
               <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
-                  className="text-primary hover:text-primary hover:bg-primary/5"
                   onClick={() =>
                     window.open(organization.website_url, "_blank")
                   }
@@ -121,12 +125,7 @@ export default function OrganizationDetail() {
                   Visit Website
                 </Button>
                 <Link to={`/organizations/${id}/review`}>
-                  <Button
-                    variant="outline"
-                    className="text-primary hover:text-primary hover:bg-primary/5"
-                  >
-                    Write a Review
-                  </Button>
+                  <Button variant="outline">Write a Review</Button>
                 </Link>
               </div>
             </div>
@@ -139,6 +138,50 @@ export default function OrganizationDetail() {
         <CardContent className="p-8">
           <h2 className="text-2xl font-semibold mb-4">About</h2>
           <p className="text-muted-foreground">{organization.description}</p>
+        </CardContent>
+      </Card>
+
+      {/* Reviews Section */}
+      <Card className="mb-8">
+        <CardContent className="p-8">
+          <h2 className="text-2xl font-semibold mb-6">Reviews</h2>
+          {reviews.length > 0 ? (
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <div key={review.id}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="font-medium mb-1">
+                        {review.is_anonymous ? "Anonymous" : review.author}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {review.role} • {review.employment_period}
+                      </div>
+                    </div>
+                    <div className="text-yellow-500">
+                      ★ {review.rating.toFixed(1)}
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground mb-4">{review.content}</p>
+                  <div className="flex items-center gap-4">
+                    <Button variant="outline" size="sm">
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      Helpful
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Flag className="h-4 w-4 mr-2" />
+                      Report
+                    </Button>
+                  </div>
+                  <Separator className="my-6" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground">
+              No reviews yet. Be the first to review this organization!
+            </div>
+          )}
         </CardContent>
       </Card>
 

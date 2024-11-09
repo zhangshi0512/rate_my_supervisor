@@ -1,12 +1,12 @@
+// client/lib/api.ts
+
 import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
+// Types
 export interface Supervisor {
   id: number;
   name: string;
@@ -29,73 +29,86 @@ export interface Organization {
 }
 
 export interface SupervisorReview {
-  id: number;
-  supervisor_id: number;
+  id?: number;
+  supervisor_id?: number;
   rating: number;
   content: string;
   author: string;
   supervision_period: string;
   is_anonymous: boolean;
-  helpful_count: number;
-  created_at: string;
+  characteristics?: string;
+  created_at?: string;
 }
 
 export interface OrganizationReview {
-  id: number;
-  organization_id: number;
+  id?: number;
+  organization_id?: number;
   rating: number;
   content: string;
   author: string;
   role: string;
   employment_period: string;
   is_anonymous: boolean;
-  created_at: string;
+  created_at?: string;
 }
 
-// Helper function to ensure numeric rating
-const ensureNumericRating = (data: any) => {
-  if (data.rating) {
-    data.rating = parseFloat(data.rating.toString()) || 0;
-  }
-  return data;
-};
+export interface OrganizationReviewWithAuthor extends OrganizationReview {
+  author: string;
+  role: string;
+  employment_period: string;
+  is_anonymous: boolean;
+}
 
-// Supervisor endpoints
+// API Functions
 export const getSupervisors = async () => {
   const response = await api.get<Supervisor[]>("/api/supervisors");
-  return response.data.map((supervisor) => ensureNumericRating(supervisor));
+  return response.data;
 };
 
 export const getSupervisor = async (id: string) => {
   const response = await api.get<Supervisor>(`/api/supervisors/${id}`);
-  return ensureNumericRating(response.data);
+  return response.data;
 };
 
-export const createSupervisorReview = (
-  id: string,
-  review: Partial<SupervisorReview>
-) => api.post(`/api/reviews/supervisors/${id}`, review).then((res) => res.data);
-
-// Organization endpoints
 export const getOrganizations = async () => {
   const response = await api.get<Organization[]>("/api/organizations");
-  return response.data.map((org) => ensureNumericRating(org));
+  return response.data;
 };
 
 export const getOrganization = async (id: string) => {
   const response = await api.get<Organization>(`/api/organizations/${id}`);
-  return ensureNumericRating(response.data);
+  return response.data;
 };
 
 export const getOrganizationSupervisors = async (id: string) => {
   const response = await api.get<Supervisor[]>(
     `/api/organizations/${id}/supervisors`
   );
-  return response.data.map((supervisor) => ensureNumericRating(supervisor));
+  return response.data;
 };
 
-export const createOrganizationReview = (
+export const getOrganizationReviews = async (id: string) => {
+  const response = await api.get<OrganizationReviewWithAuthor[]>(
+    `/api/organizations/${id}/reviews`
+  );
+  return response.data.map((review) => ({
+    ...review,
+    rating: parseFloat(review.rating.toString()) || 0,
+  }));
+};
+
+export const createSupervisorReview = async (
+  id: string,
+  review: Partial<SupervisorReview>
+) => {
+  const response = await api.post(`/api/reviews/supervisors/${id}`, review);
+  return response.data;
+};
+
+export const createOrganizationReview = async (
   id: string,
   review: Partial<OrganizationReview>
-) =>
-  api.post(`/api/reviews/organizations/${id}`, review).then((res) => res.data);
+) => {
+  const response = await api.post(`/api/reviews/organizations/${id}`, review);
+  return response.data;
+};

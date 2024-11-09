@@ -29,6 +29,7 @@ CREATE TABLE supervisor_reviews (
   supervision_period VARCHAR(100) NOT NULL,
   is_anonymous BOOLEAN DEFAULT FALSE,
   helpful_count INTEGER DEFAULT 0,
+  characteristics TEXT, -- JSON string of characteristics
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

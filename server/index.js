@@ -1,3 +1,5 @@
+// server/index.js
+
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -33,9 +35,9 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use("/api", reviewRoutes); // Mount reviews routes first
 app.use("/api/supervisors", supervisorRoutes);
 app.use("/api/organizations", organizationRoutes);
-app.use("/api/reviews", reviewRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

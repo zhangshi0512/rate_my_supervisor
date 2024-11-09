@@ -1,3 +1,5 @@
+// server/config/database.js
+
 import pg from "pg";
 import "dotenv/config";
 const { Pool } = pg;

@@ -1,14 +1,21 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { createOrganizationReview } from "@/lib/api";
 
 export default function WriteOrganizationReview() {
   const { id } = useParams();
@@ -16,36 +23,59 @@ export default function WriteOrganizationReview() {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [employmentPeriod, setEmploymentPeriod] = useState('');
-  const [review, setReview] = useState('');
-  const [role, setRole] = useState('');
+  const [employmentPeriod, setEmploymentPeriod] = useState("");
+  const [review, setReview] = useState("");
+  const [role, setRole] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    if (!id) {
+      toast.error("Invalid organization ID");
+      return;
+    }
+
     if (rating === 0) {
-      toast.error('Please provide a rating');
+      toast.error("Please provide a rating");
       return;
     }
 
     if (!review.trim()) {
-      toast.error('Please write a review');
+      toast.error("Please write a review");
       return;
     }
 
     if (!employmentPeriod.trim()) {
-      toast.error('Please specify your employment period');
+      toast.error("Please specify your employment period");
       return;
     }
 
     if (!role) {
-      toast.error('Please specify your role');
+      toast.error("Please specify your role");
       return;
     }
 
-    // Here you would typically submit the review to your backend
-    toast.success('Review submitted successfully!');
-    navigate(`/organizations/${id}`);
+    try {
+      setSubmitting(true);
+
+      await createOrganizationReview(id, {
+        rating,
+        content: review,
+        employment_period: employmentPeriod,
+        role,
+        is_anonymous: isAnonymous,
+        author: isAnonymous ? "Anonymous" : "User", // In a real app, this would come from auth
+      });
+
+      toast.success("Review submitted successfully!");
+      navigate(`/organizations/${id}`);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Failed to submit review. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -53,7 +83,7 @@ export default function WriteOrganizationReview() {
       <Card>
         <CardContent className="p-8">
           <h1 className="text-3xl font-bold mb-6">Write Organization Review</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Rating */}
             <div className="space-y-2">
@@ -71,8 +101,8 @@ export default function WriteOrganizationReview() {
                     <Star
                       className={`h-8 w-8 ${
                         star <= (hoveredRating || rating)
-                          ? 'fill-yellow-500 text-yellow-500'
-                          : 'text-muted-foreground'
+                          ? "fill-yellow-500 text-yellow-500"
+                          : "text-muted-foreground"
                       }`}
                     />
                   </button>
@@ -135,12 +165,14 @@ export default function WriteOrganizationReview() {
               <Button
                 type="button"
                 variant="outline"
-                className="text-primary hover:text-primary hover:bg-primary/5"
                 onClick={() => navigate(`/organizations/${id}`)}
+                disabled={submitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Submit Review</Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit Review"}
+              </Button>
             </div>
           </form>
         </CardContent>
