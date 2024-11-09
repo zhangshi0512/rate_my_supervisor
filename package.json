@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server/index.js",
-    "init-db": "node server/db/init-db.js"
+    "init-db": "node server/db/init-db.js",
+    "test-db": "node server/test-connection.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -41,6 +42,7 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

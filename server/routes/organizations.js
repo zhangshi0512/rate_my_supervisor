@@ -3,49 +3,50 @@ import db from "../config/database.js";
 
 const router = express.Router();
 
-/**
- * @typedef {Object} Organization
- * @property {number} id
- * @property {string} name
- * @property {string} type
- * @property {string} [description]
- * @property {string} [website_url]
- * @property {Date} created_at
- * @property {number} [rating]
- * @property {number} [supervisor_count]
- */
-
 // Get all organizations
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
+    console.log("Fetching all organizations...");
     const result = await db.query(`
       SELECT 
         o.*,
-        COALESCE(AVG(or.rating), 0) as rating,
+        COALESCE(ROUND(AVG(org_reviews.rating)::numeric, 2), 0)::float as rating,
         COUNT(DISTINCT s.id) as supervisor_count
       FROM organizations o
-      LEFT JOIN organization_reviews or ON o.id = or.organization_id
+      LEFT JOIN organization_reviews org_reviews ON o.id = org_reviews.organization_id
       LEFT JOIN supervisors s ON s.organization_id = o.id
       GROUP BY o.id
     `);
-    res.json(result.rows);
+
+    // Ensure rating is a number
+    const organizations = result.rows.map((org) => ({
+      ...org,
+      rating: parseFloat(org.rating) || 0,
+      supervisor_count: parseInt(org.supervisor_count) || 0,
+    }));
+
+    console.log(`Found ${organizations.length} organizations`);
+    res.json(organizations);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error fetching organizations:", err);
+    next(err);
   }
 });
 
 // Get organization by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(`Fetching organization with ID: ${id}`);
+
     const result = await db.query(
       `
       SELECT 
         o.*,
-        COALESCE(AVG(or.rating), 0) as rating,
+        COALESCE(ROUND(AVG(org_reviews.rating)::numeric, 2), 0)::float as rating,
         COUNT(DISTINCT s.id) as supervisor_count
       FROM organizations o
-      LEFT JOIN organization_reviews or ON o.id = or.organization_id
+      LEFT JOIN organization_reviews org_reviews ON o.id = org_reviews.organization_id
       LEFT JOIN supervisors s ON s.organization_id = o.id
       WHERE o.id = $1
       GROUP BY o.id
@@ -54,12 +55,65 @@ router.get("/:id", async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      console.log(`No organization found with ID: ${id}`);
       return res.status(404).json({ error: "Organization not found" });
     }
 
-    res.json(result.rows[0]);
+    // Ensure rating and supervisor_count are numbers
+    const organization = {
+      ...result.rows[0],
+      rating: parseFloat(result.rows[0].rating) || 0,
+      supervisor_count: parseInt(result.rows[0].supervisor_count) || 0,
+    };
+
+    console.log(`Successfully fetched organization with ID: ${id}`);
+    res.json(organization);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(`Error fetching organization with ID ${req.params.id}:`, err);
+    next(err);
+  }
+});
+
+// Get supervisors for an organization
+router.get("/:id/supervisors", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(`Fetching supervisors for organization ID: ${id}`);
+
+    const result = await db.query(
+      `
+      SELECT 
+        s.*,
+        COALESCE(ROUND(AVG(sr.rating)::numeric, 2), 0)::float as rating,
+        COUNT(sr.id) as review_count
+      FROM supervisors s
+      LEFT JOIN supervisor_reviews sr ON s.id = sr.supervisor_id
+      WHERE s.organization_id = $1
+      GROUP BY s.id
+    `,
+      [id]
+    );
+
+    // Transform specialties from string to array if needed
+    const supervisors = result.rows.map((supervisor) => ({
+      ...supervisor,
+      specialties: Array.isArray(supervisor.specialties)
+        ? supervisor.specialties
+        : supervisor.specialties?.split(",") || [],
+      rating: parseFloat(supervisor.rating) || 0,
+      review_count: parseInt(supervisor.review_count) || 0,
+    }));
+
+    console.log(
+      `Found ${supervisors.length} supervisors for organization ${id}`
+    );
+    res.json(supervisors);
+  } catch (err) {
+    console.error(
+      `Error fetching supervisors for organization ${req.params.id}:`,
+      err
+    );
+    next(err);
   }
 });
 

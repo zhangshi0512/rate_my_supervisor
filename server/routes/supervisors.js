@@ -3,49 +3,51 @@ import db from "../config/database.js";
 
 const router = express.Router();
 
-/**
- * @typedef {Object} Supervisor
- * @property {number} id
- * @property {string} name
- * @property {number} organization_id
- * @property {string[]} specialties
- * @property {number} experience
- * @property {string} [bio]
- * @property {Date} created_at
- * @property {number} [rating]
- * @property {number} [review_count]
- */
-
 // Get all supervisors
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
+    console.log("Fetching all supervisors...");
     const result = await db.query(`
       SELECT 
         s.*,
-        COALESCE(AVG(sr.rating), 0) as rating,
-        COUNT(sr.id) as review_count
+        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0)::float as rating,
+        COUNT(r.id) as review_count
       FROM supervisors s
-      LEFT JOIN supervisor_reviews sr ON s.id = sr.supervisor_id
+      LEFT JOIN supervisor_reviews r ON s.id = r.supervisor_id
       GROUP BY s.id
     `);
-    res.json(result.rows);
+
+    // Transform specialties from string to array if needed
+    const supervisors = result.rows.map((supervisor) => ({
+      ...supervisor,
+      specialties: Array.isArray(supervisor.specialties)
+        ? supervisor.specialties
+        : supervisor.specialties?.split(",") || [],
+      rating: parseFloat(supervisor.rating) || 0,
+    }));
+
+    console.log(`Found ${supervisors.length} supervisors`);
+    res.json(supervisors);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error fetching supervisors:", err);
+    next(err);
   }
 });
 
 // Get supervisor by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(`Fetching supervisor with ID: ${id}`);
+
     const result = await db.query(
       `
       SELECT 
         s.*,
-        COALESCE(AVG(sr.rating), 0) as rating,
-        COUNT(sr.id) as review_count
+        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0)::float as rating,
+        COUNT(r.id) as review_count
       FROM supervisors s
-      LEFT JOIN supervisor_reviews sr ON s.id = sr.supervisor_id
+      LEFT JOIN supervisor_reviews r ON s.id = r.supervisor_id
       WHERE s.id = $1
       GROUP BY s.id
     `,
@@ -53,12 +55,24 @@ router.get("/:id", async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      console.log(`No supervisor found with ID: ${id}`);
       return res.status(404).json({ error: "Supervisor not found" });
     }
 
-    res.json(result.rows[0]);
+    // Transform specialties from string to array if needed
+    const supervisor = {
+      ...result.rows[0],
+      specialties: Array.isArray(result.rows[0].specialties)
+        ? result.rows[0].specialties
+        : result.rows[0].specialties?.split(",") || [],
+      rating: parseFloat(result.rows[0].rating) || 0,
+    };
+
+    console.log(`Successfully fetched supervisor with ID: ${id}`);
+    res.json(supervisor);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(`Error fetching supervisor with ID ${req.params.id}:`, err);
+    next(err);
   }
 });
 
