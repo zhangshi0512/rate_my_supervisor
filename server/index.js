@@ -1,43 +1,63 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// server/index.js
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import { supervisorRoutes } from "./routes/supervisors.js";
+import { organizationRoutes } from "./routes/organizations.js";
+import { reviewRoutes } from "./routes/reviews.js";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.API_PORT || 3001;
 
-// Enable CORS
-app.use(cors());
+// Enable better error logging
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
 
-// Parse JSON bodies
+// Middleware
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// Serve static files from the client build directory
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// Set proper CSP headers
+// Request logging middleware
 app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
-  );
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
 
-// API routes
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+// Routes
+app.use("/api", reviewRoutes); // Mount reviews routes first
+app.use("/api/supervisors", supervisorRoutes);
+app.use("/api/organizations", organizationRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
-// Handle client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+// Error handling middleware - MUST be last
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  console.error("Stack:", err.stack);
+
+  res.status(500).json({
+    error: "Internal Server Error",
+    message:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "An error occurred",
+  });
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

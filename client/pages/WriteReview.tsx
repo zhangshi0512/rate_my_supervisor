@@ -1,15 +1,19 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Star, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { CharacteristicButton } from '@/components/CharacteristicButton';
-import { positiveCharacteristics, negativeCharacteristics } from '@/data/supervisorCharacteristics';
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Star, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { CharacteristicButton } from "@/components/CharacteristicButton";
+import {
+  positiveCharacteristics,
+  negativeCharacteristics,
+} from "@/data/supervisorCharacteristics";
+import { createSupervisorReview } from "@/lib/api";
 
 interface CharacteristicRating {
   [key: string]: boolean;
@@ -21,47 +25,87 @@ export default function WriteReview() {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [supervisionPeriod, setSupervisionPeriod] = useState('');
-  const [positiveRatings, setPositiveRatings] = useState<CharacteristicRating>({});
-  const [negativeRatings, setNegativeRatings] = useState<CharacteristicRating>({});
-  const [additionalComments, setAdditionalComments] = useState('');
+  const [supervisionPeriod, setSupervisionPeriod] = useState("");
+  const [positiveRatings, setPositiveRatings] = useState<CharacteristicRating>(
+    {}
+  );
+  const [negativeRatings, setNegativeRatings] = useState<CharacteristicRating>(
+    {}
+  );
+  const [additionalComments, setAdditionalComments] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    if (!id) {
+      toast.error("Invalid supervisor ID");
+      return;
+    }
+
     if (rating === 0) {
-      toast.error('Please provide an overall rating');
+      toast.error("Please provide an overall rating");
       return;
     }
 
     if (!supervisionPeriod.trim()) {
-      toast.error('Please specify the supervision period');
+      toast.error("Please specify the supervision period");
       return;
     }
 
-    const selectedPositive = Object.entries(positiveRatings).filter(([_, value]) => value).length;
-    const selectedNegative = Object.entries(negativeRatings).filter(([_, value]) => value).length;
+    const selectedPositive = Object.entries(positiveRatings)
+      .filter(([_, value]) => value)
+      .map(([key]) => key);
+    const selectedNegative = Object.entries(negativeRatings)
+      .filter(([_, value]) => value)
+      .map(([key]) => key);
 
-    if (selectedPositive === 0 && selectedNegative === 0) {
-      toast.error('Please select at least one characteristic');
+    if (selectedPositive.length === 0 && selectedNegative.length === 0) {
+      toast.error("Please select at least one characteristic");
       return;
     }
 
-    // Here you would typically submit the review to your backend
-    toast.success('Review submitted successfully!');
-    navigate(`/supervisors/${id}`);
+    try {
+      setSubmitting(true);
+
+      // Format characteristics for storage
+      const characteristics = [
+        ...selectedPositive.map((c) => ({ name: c, type: "positive" })),
+        ...selectedNegative.map((c) => ({ name: c, type: "negative" })),
+      ];
+
+      await createSupervisorReview(id, {
+        rating,
+        content: additionalComments,
+        supervision_period: supervisionPeriod,
+        is_anonymous: isAnonymous,
+        author: isAnonymous ? "Anonymous" : "User", // In a real app, this would come from auth
+        characteristics: JSON.stringify(characteristics),
+      });
+
+      toast.success("Review submitted successfully!");
+      navigate(`/supervisors/${id}`);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Failed to submit review. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const toggleCharacteristic = (characteristic: string, isPositive: boolean) => {
+  const toggleCharacteristic = (
+    characteristic: string,
+    isPositive: boolean
+  ) => {
     if (isPositive) {
-      setPositiveRatings(prev => ({
+      setPositiveRatings((prev) => ({
         ...prev,
-        [characteristic]: !prev[characteristic]
+        [characteristic]: !prev[characteristic],
       }));
     } else {
-      setNegativeRatings(prev => ({
+      setNegativeRatings((prev) => ({
         ...prev,
-        [characteristic]: !prev[characteristic]
+        [characteristic]: !prev[characteristic],
       }));
     }
   };
@@ -71,7 +115,7 @@ export default function WriteReview() {
       <Card>
         <CardContent className="p-8">
           <h1 className="text-3xl font-bold mb-6">Write a Review</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Overall Rating */}
             <div className="space-y-2">
@@ -89,8 +133,8 @@ export default function WriteReview() {
                     <Star
                       className={`h-8 w-8 ${
                         star <= (hoveredRating || rating)
-                          ? 'fill-yellow-500 text-yellow-500'
-                          : 'text-muted-foreground'
+                          ? "fill-yellow-500 text-yellow-500"
+                          : "text-muted-foreground"
                       }`}
                     />
                   </button>
@@ -149,7 +193,7 @@ export default function WriteReview() {
               </div>
             </div>
 
-            {/* Additional Comments (Optional) */}
+            {/* Additional Comments */}
             <div className="space-y-2">
               <Label className="text-lg font-semibold" htmlFor="comments">
                 Additional Comments (Optional)
@@ -165,7 +209,10 @@ export default function WriteReview() {
 
             {/* Anonymous Option */}
             <div className="flex items-center justify-between">
-              <Label htmlFor="anonymous" className="cursor-pointer text-lg font-semibold">
+              <Label
+                htmlFor="anonymous"
+                className="cursor-pointer text-lg font-semibold"
+              >
                 Post Anonymously
               </Label>
               <Switch
@@ -183,10 +230,13 @@ export default function WriteReview() {
                 type="button"
                 variant="outline"
                 onClick={() => navigate(`/supervisors/${id}`)}
+                disabled={submitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Submit Review</Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit Review"}
+              </Button>
             </div>
           </form>
         </CardContent>
