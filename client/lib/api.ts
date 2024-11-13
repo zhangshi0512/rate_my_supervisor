@@ -70,6 +70,11 @@ export const getSupervisor = async (id: string) => {
   return response.data;
 };
 
+export const getSupervisorReviews = async (id: string) => {
+  const response = await api.get(`/api/reviews/supervisors/${id}`);
+  return response.data;
+};
+
 export const getOrganizations = async () => {
   const response = await api.get<Organization[]>("/api/organizations");
   return response.data;
