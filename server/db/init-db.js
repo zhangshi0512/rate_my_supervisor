@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function initializeDatabase() {
-  const client = await db.connect();
+  const client = await db.pool.connect();
 
   try {
     // Start transaction
@@ -41,7 +41,7 @@ async function initializeDatabase() {
   } finally {
     client.release();
     // Close the pool
-    await db.end();
+    await db.pool.end();
   }
 }
 

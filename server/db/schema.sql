@@ -1,5 +1,11 @@
 /* server/db/schema.sql */
 
+-- Drop existing tables
+DROP TABLE IF EXISTS organizations CASCADE;
+DROP TABLE IF EXISTS supervisors CASCADE;
+DROP TABLE IF EXISTS supervisor_reviews CASCADE;
+DROP TABLE IF EXISTS organization_reviews CASCADE;
+
 -- Create tables
 CREATE TABLE organizations (
   id SERIAL PRIMARY KEY,
