@@ -145,9 +145,25 @@ export default function SupervisorDetail() {
                   </div>
                   <div className="text-yellow-500">★ {review.rating}</div>
                 </div>
-                <p className="text-muted-foreground mb-4">
-                  {review.content}
-                </p>
+                <div className="space-y-2 mb-4">
+                  <p className="text-muted-foreground mb-4">{review.content}</p>
+                  {review.characteristics && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {JSON.parse(review.characteristics).map((characteristic) => (
+                        <div
+                          key={characteristic.name}
+                          className={`px-2 py-1 rounded-lg ${
+                            characteristic.type === "positive"
+                              ? "bg-green-100 text-green-500 border border-green-500"
+                              : "bg-red-100 text-red-500 border border-red-500"
+                          }`}
+                        >
+                          {characteristic.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center gap-4">
                   <Button
                     variant="outline"
