@@ -40,6 +40,11 @@ export interface SupervisorReview {
   created_at?: string;
 }
 
+export interface Characteristic {
+  name: string;
+  type: "positive" | "negative";
+}
+
 export interface OrganizationReview {
   id?: number;
   organization_id?: number;

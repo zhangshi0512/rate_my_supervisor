@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router-dom";
-import { getSupervisor, getSupervisorReviews, type Supervisor, type SupervisorReview } from "@/lib/api";
+import { 
+  getSupervisor,
+  getSupervisorReviews,
+  type Supervisor,
+  type SupervisorReview,
+  type Characteristic,
+} from "@/lib/api";
 import { toast } from "sonner";
 
 export default function SupervisorDetail() {
@@ -149,7 +155,7 @@ export default function SupervisorDetail() {
                   <p className="text-muted-foreground mb-4">{review.content}</p>
                   {review.characteristics && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {JSON.parse(review.characteristics).map((characteristic) => (
+                      {JSON.parse(review.characteristics).map((characteristic: Characteristic) => (
                         <div
                           key={characteristic.name}
                           className={`px-2 py-1 rounded-lg ${
