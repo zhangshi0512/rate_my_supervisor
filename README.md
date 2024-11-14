@@ -18,9 +18,9 @@ The current state of the internship/apprenticeship environment in the state of C
 
 ## Tech Stack
 
-Frontend: React, HTML, CSS, MaterialUI
+Frontend: React, Tailwind CSS
 
-Backend: Node, Express, Railway
+Backend: Node.js, Express, PostgreSQL, Railway
 
 ## Features
 
@@ -30,11 +30,23 @@ Users can browse a comprehensive list of organizations and their associated supe
 
 ![view list of orgs and supervisors](assets/feature_view_list_of_orgs_supervisors.gif)
 
-### Rating System
+### ✅ View Reviews for Organizations and Supervisors
 
-Interns can rate supervisors using predefined criteria, providing structured feedback that contributes to an overall rating.
+Users can see a list of reviews for a particular supervisor or an organization.
 
-[gif goes here]
+![view reviews of orgs and supervisors](assets/feature_view_reviews_orgs_supervisors.gif)
+
+### ✅ Add Reviews for Organizations and Supervisors
+
+Users can add reviews for a particular supervisor or an organization.
+
+![view reviews of orgs and supervisors](assets/feature_add_reviews_orgs_supervisors.gif)
+
+### ✅ Review Tags for Supervisors
+
+When submitting reviews for a supervisor, interns can select from predefined tags to highlight specific aspects of their experience, making it easier for others to identify key points.
+
+![review tags for supervisors](assets/feature_review_tags_for_supervisors.gif)
 
 ### Search for Organizations and Supervisors
 
@@ -42,21 +54,9 @@ A search functionality which allows users to quickly find specific organizations
 
 [gif goes here]
 
-### Create new Organizations and Supervisors
-
-Users can add new organizations and supervisors to the platform to expand the database.
-
-[gif goes here]
-
 ### Update Organizations and Supervisors
 
 Users can edit existing profiles of organizations and supervisors to ensure information remains accurate and up-to-date.
-
-[gif goes here]
-
-### Interns/Associates Review Tags
-
-When submitting reviews, interns can select from predefined tags to highlight specific aspects of their experience, making it easier for others to identify key points.
 
 [gif goes here]
 

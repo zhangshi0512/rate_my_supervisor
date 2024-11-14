@@ -4,12 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router-dom";
-import { getSupervisor, type Supervisor } from "@/lib/api";
+import { 
+  getSupervisor,
+  getSupervisorReviews,
+  type Supervisor,
+  type SupervisorReview,
+  type Characteristic,
+} from "@/lib/api";
 import { toast } from "sonner";
 
 export default function SupervisorDetail() {
   const { id } = useParams();
   const [supervisor, setSupervisor] = useState<Supervisor | null>(null);
+  const [reviews, setReviews] = useState<SupervisorReview[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +34,22 @@ export default function SupervisorDetail() {
       }
     };
 
+    const fetchReviews = async () => {
+      if (!id) return;
+
+      try {
+        const reviews = await getSupervisorReviews(id);
+        setReviews(reviews);
+      } catch (error) {
+        toast.error("Failed to load supervisor reviews");
+        console.error("Error fetching supervisor:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchSupervisor();
+    fetchReviews();
   }, [id]);
 
   if (loading) {
@@ -116,22 +138,38 @@ export default function SupervisorDetail() {
         <CardContent className="p-8">
           <h2 className="text-2xl font-semibold mb-6">Reviews</h2>
           <div className="space-y-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i}>
+            {reviews.map((review) => (
+              <div key={review.id}>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <div className="font-medium mb-1">Anonymous Intern</div>
+                    <div className="font-medium mb-1">
+                      {review.is_anonymous ? "Anonymous" : review.author}
+                    </div>
                     <div className="text-sm text-muted-foreground">
-                      Supervised for 1 year
+                      Supervised for {review.supervision_period}
                     </div>
                   </div>
-                  <div className="text-yellow-500">★ 4.5</div>
+                  <div className="text-yellow-500">★ {review.rating}</div>
                 </div>
-                <p className="text-muted-foreground mb-4">
-                  Dr. Smith is an exceptional supervisor who provides thoughtful
-                  feedback and creates a supportive learning environment. Their
-                  expertise has greatly enhanced my clinical skills...
-                </p>
+                <div className="space-y-2 mb-4">
+                  <p className="text-muted-foreground mb-4">{review.content}</p>
+                  {review.characteristics && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {JSON.parse(review.characteristics).map((characteristic: Characteristic) => (
+                        <div
+                          key={characteristic.name}
+                          className={`px-2 py-1 rounded-lg ${
+                            characteristic.type === "positive"
+                              ? "bg-green-100 text-green-500 border border-green-500"
+                              : "bg-red-100 text-red-500 border border-red-500"
+                          }`}
+                        >
+                          {characteristic.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center gap-4">
                   <Button
                     variant="outline"
@@ -139,7 +177,7 @@ export default function SupervisorDetail() {
                     className="text-primary hover:text-primary hover:bg-primary/5"
                   >
                     <ThumbsUp className="h-4 w-4 mr-2" />
-                    Helpful (12)
+                    Helpful
                   </Button>
                   <Button
                     variant="outline"

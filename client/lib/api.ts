@@ -40,6 +40,11 @@ export interface SupervisorReview {
   created_at?: string;
 }
 
+export interface Characteristic {
+  name: string;
+  type: "positive" | "negative";
+}
+
 export interface OrganizationReview {
   id?: number;
   organization_id?: number;
@@ -67,6 +72,11 @@ export const getSupervisors = async () => {
 
 export const getSupervisor = async (id: string) => {
   const response = await api.get<Supervisor>(`/api/supervisors/${id}`);
+  return response.data;
+};
+
+export const getSupervisorReviews = async (id: string) => {
+  const response = await api.get(`/api/reviews/supervisors/${id}`);
   return response.data;
 };
 
