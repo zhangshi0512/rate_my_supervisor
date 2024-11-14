@@ -119,4 +119,68 @@ router.post("/reviews/organizations/:id", async (req, res) => {
   }
 });
 
+// Update supervisor review not tested
+router.update("/review/supervisors/id", async (req, res) => {
+  try {
+    const {id} = parseInt(req.params);
+    const {
+      rating,
+      content,
+      author,
+      supervision_period,
+      is_anonymous,
+      characteristics,
+    } = req.body;
+
+    const results = await pool.query(`UPDATE supervisor_reviews SET supervisor_id = $1, rating = $2, content = $3, author = $4, supervision_period = $5, is_anonymous = $6, characteristics = $7 WHERE id = $8`,
+      [supervisor_id, rating, content, author, supervision_period, is_anonymous, characteristics, id]
+    )
+  } catch (error) {
+    res.status(409).json({ error: error.message })
+  }
+})
+
+// Update organization review not tested
+router.update("/review/organizations/id", async (req, res) => {
+  try {
+    const {id} = parseInt(req.params);
+    const { 
+      rating, 
+      content, 
+      author, 
+      role, 
+      employment_period, 
+      is_anonymous 
+    } = req.body;
+
+    const results = await pool.query(`UPDATE supervisor_reviews SET organization_id = $1, rating = $2, content = $3, author = $4, role = $5, employment_period = $6, is_anonymous = $7 WHERE id = $8`,
+      [organization_id, rating, content, author, role, employment_period, is_anonymous, id]
+    )
+  } catch (error) {
+    res.status(409).json({ error: error.message })
+  }
+})
+
+// Delete supervisor review not tested
+router.delete("/reviews/supervisors/:id", async (req, res) => {
+  try {
+    const { id } = parseInt(req.params);
+    const results = await pool.query(`DELETE FROM supervisor_reviews WHERE id = $1`, [id])
+      res.status(200).json(results.rows[0])
+  } catch (err) {
+    res.status(409).json( { error: error.message } )
+  }
+})
+
+// Delete organization review not tested
+router.delete("/reviews/organizations/:id", async (req, res) => {
+  try {
+    const { id } = parseInt(req.params);
+    const results = await pool.query(`DELETE FROM organization_reviews WHERE id = $1`, [id])
+      res.status(200).json(results.rows[0])
+  } catch (err) {
+    res.status(409).json( { error: error.message } )
+  }
+})
+
 export const reviewRoutes = router;
