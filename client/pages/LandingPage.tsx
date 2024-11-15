@@ -12,7 +12,7 @@ import {
 } from "@/lib/api";
 import { toast } from "sonner";
 
-export type OrgType =
+type OrgType =
   | "all"
   | "private-practice"
   | "community-mental-health"
@@ -23,11 +23,11 @@ export default function LandingPage() {
   const [featuredOrganizations, setFeaturedOrganizations] = useState<
     Organization[]
   >([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [orgType, setOrgType] = useState<OrgType>("all");
   const [allSupervisors, setAllSupervisors] = useState<Supervisor[]>([]);
   const [allOrganizations, setAllOrganizations] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {

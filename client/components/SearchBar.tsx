@@ -8,7 +8,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { OrgType } from "@/pages/LandingPage";
+
+const ORGANIZATION_TYPES = {
+  all: "All Types",
+  "private-practice": "Private Practice",
+  "community-mental-health": "Community Mental Health",
+  hospital: "Hospital",
+} as const;
+
+type OrgType = keyof typeof ORGANIZATION_TYPES;
 
 interface SearchBarProps {
   placeholder?: string;
@@ -53,12 +61,11 @@ export function SearchBar({
             <SelectValue placeholder="Organization Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="private-practice">Private Practice</SelectItem>
-            <SelectItem value="community-mental-health">
-              Community Mental Health
-            </SelectItem>
-            <SelectItem value="hospital">Hospital</SelectItem>
+            {Object.entries(ORGANIZATION_TYPES).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )}
