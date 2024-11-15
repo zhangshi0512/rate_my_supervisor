@@ -1,7 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-//primary indigo-500
-//hover   indigo-950
-
 export default {
   darkMode: ["class"],
   content: [
