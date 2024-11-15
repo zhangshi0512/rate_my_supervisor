@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { Star, Flag, ThumbsUp } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { ReviewCard } from "@/components/ReviewCard";
 import { Link, useParams } from "react-router-dom";
-import { 
+import {
   getSupervisor,
   getSupervisorReviews,
+  updateSupervisorReview,
+  deleteSupervisorReview,
   type Supervisor,
   type SupervisorReview,
-  type Characteristic,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -20,37 +21,82 @@ export default function SupervisorDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSupervisor = async () => {
+    const fetchData = async () => {
       if (!id) return;
 
       try {
-        const data = await getSupervisor(id);
-        setSupervisor(data);
+        const [supervisorData, reviewsData] = await Promise.all([
+          getSupervisor(id),
+          getSupervisorReviews(id),
+        ]);
+
+        setSupervisor(supervisorData);
+        setReviews(reviewsData);
       } catch (error) {
+        console.error("Error fetching data:", error);
         toast.error("Failed to load supervisor details");
-        console.error("Error fetching supervisor:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchReviews = async () => {
-      if (!id) return;
-
-      try {
-        const reviews = await getSupervisorReviews(id);
-        setReviews(reviews);
-      } catch (error) {
-        toast.error("Failed to load supervisor reviews");
-        console.error("Error fetching supervisor:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSupervisor();
-    fetchReviews();
+    fetchData();
   }, [id]);
+
+  const handleEditReview = async (
+    reviewId: number,
+    newRating: number,
+    newContent: string
+  ) => {
+    if (!id) return;
+
+    try {
+      console.log("Updating review:", { reviewId, newRating, newContent });
+
+      await updateSupervisorReview(reviewId.toString(), {
+        rating: newRating,
+        content: newContent,
+      });
+
+      // Update the reviews list
+      const updatedReviews = reviews.map((review) =>
+        review.id === reviewId
+          ? { ...review, rating: newRating, content: newContent }
+          : review
+      );
+      setReviews(updatedReviews);
+
+      toast.success("Review updated successfully");
+    } catch (error) {
+      console.error("Error updating review:", error);
+      toast.error("Failed to update review");
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!id) return;
+
+    try {
+      await deleteSupervisorReview(reviewId.toString());
+
+      // Remove the review from the list
+      setReviews(reviews.filter((review) => review.id !== reviewId));
+      toast.success("Review deleted successfully");
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      toast.error("Failed to delete review");
+    }
+  };
+
+  const handleHelpful = (reviewId: number) => {
+    // Implement helpful functionality
+    toast.success("Marked as helpful");
+  };
+
+  const handleReport = (reviewId: number) => {
+    // Implement report functionality
+    toast.success("Review reported");
+  };
 
   if (loading) {
     return (
@@ -138,59 +184,28 @@ export default function SupervisorDetail() {
         <CardContent className="p-8">
           <h2 className="text-2xl font-semibold mb-6">Reviews</h2>
           <div className="space-y-6">
-            {reviews.map((review) => (
-              <div key={review.id}>
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <div className="font-medium mb-1">
-                      {review.is_anonymous ? "Anonymous" : review.author}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Supervised for {review.supervision_period}
-                    </div>
-                  </div>
-                  <div className="text-yellow-500">★ {review.rating}</div>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <p className="text-muted-foreground mb-4">{review.content}</p>
-                  {review.characteristics && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {JSON.parse(review.characteristics).map((characteristic: Characteristic) => (
-                        <div
-                          key={characteristic.name}
-                          className={`px-2 py-1 rounded-lg ${
-                            characteristic.type === "positive"
-                              ? "bg-green-100 text-green-500 border border-green-500"
-                              : "bg-red-100 text-red-500 border border-red-500"
-                          }`}
-                        >
-                          {characteristic.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-primary hover:text-primary hover:bg-primary/5"
-                  >
-                    <ThumbsUp className="h-4 w-4 mr-2" />
-                    Helpful
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-primary hover:text-primary hover:bg-primary/5"
-                  >
-                    <Flag className="h-4 w-4 mr-2" />
-                    Report
-                  </Button>
-                </div>
-                <Separator className="my-6" />
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
+                <ReviewCard
+                  key={review.id}
+                  id={review.id!}
+                  author={review.is_anonymous ? "Anonymous" : review.author}
+                  duration={review.supervision_period}
+                  rating={review.rating}
+                  content={review.content}
+                  helpfulCount={review.helpful_count || 0}
+                  isOwner={!review.is_anonymous && review.author === "User"} // In a real app, check against logged-in user
+                  onHelpful={() => handleHelpful(review.id!)}
+                  onReport={() => handleReport(review.id!)}
+                  onEdit={handleEditReview}
+                  onDelete={handleDeleteReview}
+                />
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground">
+                No reviews yet. Be the first to review this supervisor!
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>

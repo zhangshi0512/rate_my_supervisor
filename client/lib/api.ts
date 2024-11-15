@@ -1,5 +1,3 @@
-// client/lib/api.ts
-
 import axios from "axios";
 
 const api = axios.create({
@@ -37,12 +35,8 @@ export interface SupervisorReview {
   supervision_period: string;
   is_anonymous: boolean;
   characteristics?: string;
+  helpful_count?: number;
   created_at?: string;
-}
-
-export interface Characteristic {
-  name: string;
-  type: "positive" | "negative";
 }
 
 export interface OrganizationReview {
@@ -76,8 +70,14 @@ export const getSupervisor = async (id: string) => {
 };
 
 export const getSupervisorReviews = async (id: string) => {
-  const response = await api.get(`/api/reviews/supervisors/${id}`);
-  return response.data;
+  const response = await api.get<SupervisorReview[]>(
+    `/api/reviews/supervisors/${id}`
+  );
+  return response.data.map((review) => ({
+    ...review,
+    rating: parseFloat(review.rating.toString()) || 0,
+    helpful_count: review.helpful_count || 0,
+  }));
 };
 
 export const getOrganizations = async () => {
@@ -99,7 +99,7 @@ export const getOrganizationSupervisors = async (id: string) => {
 
 export const getOrganizationReviews = async (id: string) => {
   const response = await api.get<OrganizationReviewWithAuthor[]>(
-    `/api/organizations/${id}/reviews`
+    `/api/reviews/organizations/${id}`
   );
   return response.data.map((review) => ({
     ...review,
@@ -121,4 +121,32 @@ export const createOrganizationReview = async (
 ) => {
   const response = await api.post(`/api/reviews/organizations/${id}`, review);
   return response.data;
+};
+
+export const updateSupervisorReview = async (
+  id: string,
+  review: Partial<SupervisorReview>
+) => {
+  // Fixed endpoint path
+  const response = await api.put(`/api/supervisors/reviews/${id}`, review);
+  return response.data;
+};
+
+export const updateOrganizationReview = async (
+  id: string,
+  review: Partial<OrganizationReview>
+) => {
+  // Fixed endpoint path
+  const response = await api.put(`/api/organizations/reviews/${id}`, review);
+  return response.data;
+};
+
+export const deleteSupervisorReview = async (id: string) => {
+  // Fixed endpoint path
+  await api.delete(`/api/supervisors/reviews/${id}`);
+};
+
+export const deleteOrganizationReview = async (id: string) => {
+  // Fixed endpoint path
+  await api.delete(`/api/organizations/reviews/${id}`);
 };

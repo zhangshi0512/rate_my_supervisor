@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { Building2, MapPin, Globe, Star, ThumbsUp, Flag } from "lucide-react";
+import { Building2, MapPin, Globe, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { SupervisorCard } from "@/components/SupervisorCard";
+import { ReviewCard } from "@/components/ReviewCard";
 import { Link, useParams } from "react-router-dom";
 import {
   getOrganization,
   getOrganizationSupervisors,
   getOrganizationReviews,
+  updateOrganizationReview,
+  deleteOrganizationReview,
   type Organization,
   type Supervisor,
   type OrganizationReviewWithAuthor,
@@ -46,6 +48,59 @@ export default function OrganizationDetail() {
 
     fetchData();
   }, [id]);
+
+  const handleEditReview = async (
+    reviewId: number,
+    newRating: number,
+    newContent: string
+  ) => {
+    if (!id) return;
+
+    try {
+      await updateOrganizationReview(reviewId.toString(), {
+        rating: newRating,
+        content: newContent,
+      });
+
+      // Update the reviews list
+      const updatedReviews = reviews.map((review) =>
+        review.id === reviewId
+          ? { ...review, rating: newRating, content: newContent }
+          : review
+      );
+      setReviews(updatedReviews);
+
+      toast.success("Review updated successfully");
+    } catch (error) {
+      console.error("Error updating review:", error);
+      toast.error("Failed to update review");
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!id) return;
+
+    try {
+      await deleteOrganizationReview(reviewId.toString());
+
+      // Remove the review from the list
+      setReviews(reviews.filter((review) => review.id !== reviewId));
+      toast.success("Review deleted successfully");
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      toast.error("Failed to delete review");
+    }
+  };
+
+  const handleHelpful = (reviewId: number) => {
+    // Implement helpful functionality
+    toast.success("Marked as helpful");
+  };
+
+  const handleReport = (reviewId: number) => {
+    // Implement report functionality
+    toast.success("Review reported");
+  };
 
   if (loading) {
     return (
@@ -145,43 +200,30 @@ export default function OrganizationDetail() {
       <Card className="mb-8">
         <CardContent className="p-8">
           <h2 className="text-2xl font-semibold mb-6">Reviews</h2>
-          {reviews.length > 0 ? (
-            <div className="space-y-6">
-              {reviews.map((review) => (
-                <div key={review.id}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="font-medium mb-1">
-                        {review.is_anonymous ? "Anonymous" : review.author}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {review.role} • {review.employment_period}
-                      </div>
-                    </div>
-                    <div className="text-yellow-500">
-                      ★ {review.rating.toFixed(1)}
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground mb-4">{review.content}</p>
-                  <div className="flex items-center gap-4">
-                    <Button variant="outline" size="sm">
-                      <ThumbsUp className="h-4 w-4 mr-2" />
-                      Helpful
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Flag className="h-4 w-4 mr-2" />
-                      Report
-                    </Button>
-                  </div>
-                  <Separator className="my-6" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground">
-              No reviews yet. Be the first to review this organization!
-            </div>
-          )}
+          <div className="space-y-6">
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
+                <ReviewCard
+                  key={review.id}
+                  id={review.id!}
+                  author={review.is_anonymous ? "Anonymous" : review.author}
+                  duration={`${review.role} • ${review.employment_period}`}
+                  rating={review.rating}
+                  content={review.content}
+                  helpfulCount={0}
+                  isOwner={!review.is_anonymous && review.author === "User"} // In a real app, check against logged-in user
+                  onHelpful={() => handleHelpful(review.id!)}
+                  onReport={() => handleReport(review.id!)}
+                  onEdit={handleEditReview}
+                  onDelete={handleDeleteReview}
+                />
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground">
+                No reviews yet. Be the first to review this organization!
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

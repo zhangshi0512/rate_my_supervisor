@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use("/api", reviewRoutes); // Mount reviews routes first
+app.use("/api", reviewRoutes);
 app.use("/api/supervisors", supervisorRoutes);
 app.use("/api/organizations", organizationRoutes);
 
@@ -44,7 +44,7 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Error handling middleware - MUST be last
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error:", err);
   console.error("Stack:", err.stack);

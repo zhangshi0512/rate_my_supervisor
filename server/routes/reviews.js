@@ -1,5 +1,3 @@
-// server/routes/reviews.js
-
 import express from "express";
 import db from "../config/database.js";
 
@@ -115,6 +113,107 @@ router.post("/reviews/organizations/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Error adding organization review:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update supervisor review
+router.put("/supervisors/reviews/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, content } = req.body;
+
+    console.log("Updating supervisor review:", { id, rating, content });
+
+    const result = await db.query(
+      `
+      UPDATE supervisor_reviews 
+      SET rating = $1, content = $2
+      WHERE id = $3
+      RETURNING *
+    `,
+      [rating, content, id]
+    );
+
+    if (result.rows.length === 0) {
+      console.log("Review not found:", id);
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    console.log("Updated review:", result.rows[0]);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error updating supervisor review:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update organization review
+router.put("/organizations/reviews/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, content } = req.body;
+
+    const result = await db.query(
+      `
+      UPDATE organization_reviews 
+      SET rating = $1, content = $2
+      WHERE id = $3
+      RETURNING *
+    `,
+      [rating, content, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    console.log(`Updated review ${id}`);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error updating organization review:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete supervisor review
+router.delete("/supervisors/reviews/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query(
+      "DELETE FROM supervisor_reviews WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    console.log(`Deleted review ${id}`);
+    res.json({ message: "Review deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting supervisor review:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete organization review
+router.delete("/organizations/reviews/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query(
+      "DELETE FROM organization_reviews WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    console.log(`Deleted review ${id}`);
+    res.json({ message: "Review deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting organization review:", err);
     res.status(500).json({ error: err.message });
   }
 });
