@@ -12,33 +12,36 @@ import {
 } from "@/lib/api";
 import { toast } from "sonner";
 
+export type OrgType =
+  | "all"
+  | "private-practice"
+  | "community-mental-health"
+  | "hospital";
+
 export default function LandingPage() {
   const [topSupervisors, setTopSupervisors] = useState<Supervisor[]>([]);
   const [featuredOrganizations, setFeaturedOrganizations] = useState<
     Organization[]
   >([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [orgType, setOrgType] = useState<OrgType>("all");
+  const [allSupervisors, setAllSupervisors] = useState<Supervisor[]>([]);
+  const [allOrganizations, setAllOrganizations] = useState<Organization[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch supervisors and organizations in parallel
         const [supervisorsData, organizationsData] = await Promise.all([
           getSupervisors(),
           getOrganizations(),
         ]);
 
-        // Sort supervisors by rating and take top 3
-        const sortedSupervisors = supervisorsData
-          .sort((a, b) => b.rating - a.rating)
-          .slice(0, 3);
-        setTopSupervisors(sortedSupervisors);
+        setAllSupervisors(supervisorsData);
+        setAllOrganizations(organizationsData);
 
-        // Sort organizations by rating and take top 3
-        const sortedOrganizations = organizationsData
-          .sort((a, b) => b.rating - a.rating)
-          .slice(0, 3);
-        setFeaturedOrganizations(sortedOrganizations);
+        // Set initial top rated items
+        updateTopItems(supervisorsData, organizationsData);
       } catch (error) {
         toast.error("Failed to load data");
         console.error("Error fetching data:", error);
@@ -49,6 +52,50 @@ export default function LandingPage() {
 
     fetchData();
   }, []);
+
+  const updateTopItems = (
+    supervisors: Supervisor[],
+    organizations: Organization[]
+  ) => {
+    const filteredSupervisors = filterItems(supervisors);
+    const filteredOrganizations = filterOrganizations(organizations);
+
+    setTopSupervisors(
+      filteredSupervisors.sort((a, b) => b.rating - a.rating).slice(0, 3)
+    );
+
+    setFeaturedOrganizations(
+      filteredOrganizations.sort((a, b) => b.rating - a.rating).slice(0, 3)
+    );
+  };
+
+  const filterItems = (items: Supervisor[]): Supervisor[] => {
+    return items.filter(
+      (item) =>
+        searchQuery.toLowerCase() === "" ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const filterOrganizations = (
+    organizations: Organization[]
+  ): Organization[] => {
+    return organizations.filter((org) => {
+      const matchesSearch =
+        searchQuery.toLowerCase() === "" ||
+        org.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesType =
+        orgType === "all" ||
+        org.type.toLowerCase().replace(/\s+/g, "-") === orgType;
+
+      return matchesSearch && matchesType;
+    });
+  };
+
+  const handleSearch = () => {
+    updateTopItems(allSupervisors, allOrganizations);
+  };
 
   if (loading) {
     return (
@@ -74,7 +121,14 @@ export default function LandingPage() {
 
           <Card className="max-w-3xl mx-auto">
             <CardContent className="p-6">
-              <SearchBar placeholder="Search supervisors or organizations..." />
+              <SearchBar
+                placeholder="Search supervisors or organizations..."
+                searchQuery={searchQuery}
+                orgType={orgType}
+                onSearchChange={setSearchQuery}
+                onTypeChange={setOrgType}
+                onSearch={handleSearch}
+              />
             </CardContent>
           </Card>
         </div>
@@ -92,13 +146,19 @@ export default function LandingPage() {
                   </h2>
                 </div>
                 <div className="space-y-4">
-                  {topSupervisors.map((supervisor) => (
-                    <SupervisorCard
-                      key={supervisor.id}
-                      {...supervisor}
-                      compact
-                    />
-                  ))}
+                  {topSupervisors.length > 0 ? (
+                    topSupervisors.map((supervisor) => (
+                      <SupervisorCard
+                        key={supervisor.id}
+                        {...supervisor}
+                        compact
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">
+                      No supervisors found matching your criteria
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -112,16 +172,22 @@ export default function LandingPage() {
                   </h2>
                 </div>
                 <div className="space-y-4">
-                  {featuredOrganizations.map((org) => (
-                    <OrganizationCard
-                      key={org.id}
-                      id={org.id}
-                      name={org.name}
-                      type={org.type}
-                      supervisor_count={org.supervisor_count}
-                      rating={org.rating}
-                    />
-                  ))}
+                  {featuredOrganizations.length > 0 ? (
+                    featuredOrganizations.map((org) => (
+                      <OrganizationCard
+                        key={org.id}
+                        id={org.id}
+                        name={org.name}
+                        type={org.type}
+                        supervisor_count={org.supervisor_count}
+                        rating={org.rating}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">
+                      No organizations found matching your criteria
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
