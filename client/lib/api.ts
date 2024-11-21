@@ -1,7 +1,18 @@
 import axios from "axios";
 
+// Create axios instance with dynamic base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  withCredentials: true
+});
+
+// Add request interceptor for production
+api.interceptors.request.use((config) => {
+  // If we're in production, use the production API URL
+  if (import.meta.env.PROD) {
+    config.baseURL = process.env.FRONTEND_URL || 'https://your-backend-url.com';
+  }
+  return config;
 });
 
 // Types
